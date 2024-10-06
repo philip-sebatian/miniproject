@@ -18,3 +18,13 @@ model User {
   userName String
   password String
 }
+
+model Post{
+  id Int        @id @default(autoincrement())
+  username String
+  avatar String
+  image String
+  likes Int
+  comments Int
+  caption String
+}
