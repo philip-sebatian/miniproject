@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
 
     // Validate the user and password
     if (!user || user.password !== password) {
-        console.log("Invalid credentials");
       return NextResponse.json({ status: 401, message: "Invalid credentials" });
     }
 

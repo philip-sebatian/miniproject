@@ -37,9 +37,7 @@ const posts = [
       caption: "Indulging in some delicious local cuisine! #foodporn #yummy",
     },
   ]
-  const removeCookie = (cookieName) => {
-    document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
-  };
+
 
 export  function Component() {
     const router=useRouter()
@@ -104,18 +102,18 @@ export  function Component() {
           Profile
         </Link>
         <Link
-          href="#"
+          href="/create_post"
           className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
           prefetch={false}
         >
           Post
         </Link>
         <Link
-          href="#"
+          href="/"
           className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
           prefetch={false}
           onClick={()=>{
-            removeCookie('OutsiteJWT')
+            const response=axios.post('/auth/me')
             console.log("Logged out")
             router.push('/')
           }}
@@ -126,6 +124,19 @@ export  function Component() {
     </header>
     
   )
+}
+
+export function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="relative w-16 h-16 animate-spin">
+        {/* Outer ring */}
+        <div className="absolute border-4 border-gray-300 dark:border-gray-600 opacity-30 rounded-full w-full h-full"></div>
+        {/* Inner rotating ring */}
+        <div className="absolute border-t-4 border-blue-600 dark:border-blue-400 rounded-full w-full h-full"></div>
+      </div>
+    </div>
+  );
 }
 
 function MenuIcon(props) {
@@ -167,12 +178,42 @@ function MountainIcon(props) {
       </svg>
     )
   }
-  export default function Layout({children}: {children: React.ReactNode}) {
+  export default function Layout({ children }: { children: React.ReactNode }) {
+    const [isAuth, setIsAuth] = useState<boolean | null>(null); // null indicates loading
+    const router = useRouter();
+  
+    useEffect(() => {
+      const getData = async () => {
+        try {
+          const response = await axios.get('/auth/me');
+          if (response.data?.message === "unauthorized" || !response.data) {
+            // If no valid authentication data or user is unauthorized, redirect to home
+            console.log("Not authenticated, redirecting...");
+            router.push('/');
+            setIsAuth(false);
+          } else {
+            // User is authenticated
+            setIsAuth(true);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          router.push('/'); // Redirect to home in case of error (e.g., no cookie)
+          setIsAuth(false);
+        }
+      };
+  
+      getData();
+    }, [router]);
+  
+    // Display a loading state until authentication is confirmed
+    if (isAuth === null) {
+      return <LoadingSpinner></LoadingSpinner>; // Adjust this to a more complex spinner if needed
+    }
+  
     return (
-        
-        <section>
-            <Component></Component>
-            {children}
-        </section>
+      <section>
+        <Component></Component>
+        {isAuth && children} {/* Render children only if authenticated */}
+      </section>
     );
   }

@@ -25,6 +25,5 @@ model Post{
   avatar String
   image String
   likes Int
-  comments Int
   caption String
 }

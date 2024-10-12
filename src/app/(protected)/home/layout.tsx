@@ -10,7 +10,7 @@ import Postcomp from "@/components/custom/post"
 
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-    const [isAuth, setIsAuth] = useState<boolean | null>(null); // null indicates loading
+    /*const [isAuth, setIsAuth] = useState<boolean | null>(null); // null indicates loading
     const router = useRouter();
 
     useEffect(() => {
@@ -38,8 +38,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     // Display loading state or handle unauthenticated users
    
     if (!isAuth) {
-        return null; // Optionally, you could redirect here as well
-    }
+        router.push('/'); // Optionally, you could redirect here as well
+    }*/
 
     return (
         <section>

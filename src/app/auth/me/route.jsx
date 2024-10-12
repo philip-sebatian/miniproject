@@ -30,3 +30,9 @@ export async function GET() {
         );
     }
 }
+
+export async function POST() {
+
+    cookies().delete("OutsiteJWT");
+    return NextResponse.json({ message: "logout" }, { status: 200 });
+}

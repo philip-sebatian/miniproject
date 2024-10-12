@@ -31,7 +31,7 @@ export default function Postcomp({ post }) {
             <CardFooter className="flex flex-col items-start gap-4 p-4">
                 <div className="flex w-full items-center gap-4">
                     <Button size="sm" variant="ghost">
-                        <Heart className="mr-2 h-4 w-4" />
+                        <Heart className="mr-2 h-4 w-4"/>
                         {post.likes}
                         <span className="sr-only">Likes</span>
                     </Button>
@@ -48,35 +48,3 @@ export default function Postcomp({ post }) {
         </Card>
     );
 }
-
-
-/*
-  const posts = [
-    {
-      id: 1,
-      username: "jane_doe",
-      avatar: "/placeholder.svg?height=40&width=40",
-      image: "/placeholder.svg?height=400&width=400",
-      likes: 1234,
-      comments: 56,
-      caption: "Enjoying a beautiful day in the city! #citylife #sunshine",
-    },
-    {
-      id: 2,
-      username: "travel_enthusiast",
-      avatar: "/placeholder.svg?height=40&width=40",
-      image: "/placeholder.svg?height=400&width=400",
-      likes: 987,
-      comments: 43,
-      caption: "Adventure awaits in every corner of the world. #travel #explore",
-    },
-    {
-      id: 3,
-      username: "foodie_delights",
-      avatar: "/placeholder.svg?height=40&width=40",
-      image: "/placeholder.svg?height=400&width=400",
-      likes: 2345,
-      comments: 78,
-      caption: "Indulging in some delicious local cuisine! #foodporn #yummy",
-    },
-  ]*/

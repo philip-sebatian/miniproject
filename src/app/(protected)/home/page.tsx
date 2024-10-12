@@ -1,62 +1,51 @@
+"use client"
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Postcomp from "@/components/custom/post";
 
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/lJwnQlHSEBA
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import Postcomp from "@/components/custom/post"
-
-const posts = [
-    {
-      id: 1,
-      username: "jane_doe",
-      avatar: "/placeholder.svg?height=40&width=40",
-      image: "https://unsplash.com/photos/a-black-and-white-photo-of-a-rock-formation-HuExMHcOFIQ",
-      likes: 1234,
-      comments: 56,
-      caption: "Enjoying a beautiful day in the city! #citylife #sunshine",
-    },
-    {
-      id: 2,
-      username: "travel_enthusiast",
-      avatar: "/placeholder.svg?height=40&width=40",
-      image: "https://images.unsplash.com/photo-1724744014262-64b09c07f421?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw1fHx8ZW58MHx8fHx8",
-      likes: 987,
-      comments: 43,
-      caption: "Adventure awaits in every corner of the world. #travel #explore",
-    },
-    {
-      id: 3,
-      username: "foodie_delights",
-      avatar: "/placeholder.svg?height=40&width=40",
-      image: "https://images.unsplash.com/photo-1724510637078-274e1b12ee91?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw3fHx8ZW58MHx8fHx8",
-      likes: 2345,
-      comments: 78,
-      caption: "Indulging in some delicious local cuisine! #foodporn #yummy",
-    },
-  ]
-
-
-function Dashboard(){
+function Dashboard() {
     return (
         <div className="w-screen h-1/ border border-black top-0">
-            
+            {/* Any additional content for the Dashboard can go here */}
         </div>
     );
 }
+
 export default function Page() {
+    const [posts, setPosts] = useState([]); // State to store posts
+    const [loading, setLoading] = useState(true); // State for loading status
+    const [error, setError] = useState(null); // State for error handling
+
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const res = await axios.get("/posts"); // Update with your API endpoint
+                setPosts(res.data); // Set the fetched posts
+            } catch (err) {
+                setError(err); // Set error if the request fails
+            } finally {
+                setLoading(false); // Loading done
+            }
+        };
+
+        fetchPosts();
+    }, []); // Runs once when the component mounts
+
+    if (loading) {
+        return <div>Loading...</div>; // Display a loading message
+    }
+
+    if (error) {
+        return <div>Error: {error.message}</div>; // Handle error
+    }
+
     return (
         <div>
-            
-            <div className="w-screen  flex flex-col justify-center items-center space-y-5">
-                <br></br>
-                {posts.map((post)=>{
-                    return <Postcomp post={post}></Postcomp>
-                })}
-                
+            <div className="w-screen flex flex-col justify-center items-center space-y-5">
+                <br />
+                {posts.map((post) => (
+                    <Postcomp key={post.id} post={post} /> // Use a unique key for each post
+                ))}
             </div>
         </div>
     );
