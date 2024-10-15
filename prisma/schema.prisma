@@ -27,3 +27,11 @@ model Post{
   likes Int
   caption String
 }
+
+model Comments{
+  id Int @id @default(autoincrement()),
+  post_id Int,
+  comment String,
+  owner_id Int
+
+}
