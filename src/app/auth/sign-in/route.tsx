@@ -6,7 +6,6 @@ import { serialize } from 'cookie';
 export async function POST(request: NextRequest) {
   let body;
 
-  // Handle JSON parsing
   try {
     body = await request.json();
   } catch (error) {
@@ -15,29 +14,23 @@ export async function POST(request: NextRequest) {
   
   const { name, password } = body;
 
-  // Check if required fields are present
   if (!name || !password) {
     return NextResponse.json({ error: "Missing required field: name or password" }, { status: 400 });
   }
 
   try {
     const user = await prisma.user.findFirst({
-      where: {
-        userName: name, // Use the correct property
-      },
+      where: { userName: name },
     });
 
-    // Validate the user and password
     if (!user || user.password !== password) {
       return NextResponse.json({ status: 401, message: "Invalid credentials" });
     }
 
-    // Create a JWT token
-    const token = sign({ userName: user.userName }, process.env.JWT_SECRET, {
+    const token = sign({ userName: user.userName, userId: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
-    // Serialize the cookie
     const serialized = serialize("OutsiteJWT", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -46,7 +39,7 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
-    return new Response(JSON.stringify({ message: "Authenticated" }), {
+    return new Response(JSON.stringify({ message: "Authenticated", userId: user.id, username: user.userName }), {
       status: 200,
       headers: {
         "Set-Cookie": serialized,

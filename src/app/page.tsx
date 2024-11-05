@@ -1,36 +1,45 @@
-"use client"
-import Link from "next/link"
-
-import { Button } from "@/components/ui/button"
+"use client";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useState } from "react"
-import axios from "axios"
-import { useRouter } from "next/navigation"
-
-export const description =
-  "A login form with email and password. There's an option to login with Google and a link to sign up if you don't have an account."
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
   const router = useRouter();
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
+
   const submit = async () => {
-    const result = await axios.post('/auth/sign-in', {
-      name: user,
-      password: password
-    })
-    if(result.data.message === "Authenticated"){
-      router.push('/home')
+    try {
+      const result = await axios.post('/auth/sign-in', {
+        name: user,
+        password: password,
+      });
+
+      if (result.data.message === "Authenticated") {
+        // Store username and userId in localStorage
+        localStorage.setItem("username", result.data.username);
+        localStorage.setItem("userId", result.data.userId);
+
+        // Redirect to the home page
+        router.push('/home');
+      }
+    } catch (error) {
+      console.error("Error logging in:", error);
+      // Handle errors (e.g., show an error message to the user)
     }
-  }
+  };
+
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
@@ -42,14 +51,14 @@ export function LoginForm() {
       <CardContent>
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="username">Email</Label>
+            <Label htmlFor="username">Username</Label>
             <Input
               id="username"
-              type="username"
+              type="text"
               placeholder="username"
               required
               value={user}
-              onChange={(e)=>{setUser(e.target.value)}}
+              onChange={(e) => setUser(e.target.value)}
             />
           </div>
           <div className="grid gap-2">
@@ -59,7 +68,14 @@ export function LoginForm() {
                 Forgot your password?
               </Link>
             </div>
-            <Input id="password" type="password" placeholder="password" required value={password} onChange={(e)=>{setPassword(e.target.value)}} />
+            <Input
+              id="password"
+              type="password"
+              placeholder="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
           <Button type="submit" className="w-full" onClick={submit}>
             Login
@@ -76,7 +92,7 @@ export function LoginForm() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export default function Page() {

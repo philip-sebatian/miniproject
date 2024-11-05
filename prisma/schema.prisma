@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,24 +11,67 @@ datasource db {
 }
 
 model User {
-  id Int        @id @default(autoincrement())
-  userName String
-  password String
+    id                   Int          @id @default(autoincrement())
+    userName             String
+    password             String
+    comments             Comment[]    @relation("UserComments")
+    likes                Like[]       @relation("UserLikes")
+    friendshipsSent      Friendship[] @relation("UserSentFriends")
+    friendshipsReceived  Friendship[] @relation("UserReceivedFriends")
+    messagesSent         Message[]    @relation("UserMessagesSent")
+    messagesReceived      Message[]   @relation("UserMessagesReceived")
 }
 
-model Post{
-  id Int        @id @default(autoincrement())
-  username String
-  avatar String
-  image String
-  likes Int
-  caption String
+model Post {
+    id       Int      @id @default(autoincrement())
+    username String
+    avatar   String
+    image    String
+    likes    Int      @default(0)
+    caption  String
+    postLikes Like[]  @relation("PostLikes")
 }
 
-model Comments{
-  id Int @id @default(autoincrement()),
-  post_id Int,
-  comment String,
-  owner_id Int
-
+model Comment {
+    id       Int    @id @default(autoincrement())
+    post_id  Int
+    comment  String
+    owner_id Int
+    user     User   @relation("UserComments", fields: [owner_id], references: [id])
 }
+
+model Like {
+    id      Int    @id @default(autoincrement())
+    user_id Int
+    post_id Int
+
+    user    User   @relation("UserLikes", fields: [user_id], references: [id])
+    post    Post   @relation("PostLikes", fields: [post_id], references: [id])
+
+    @@unique([user_id, post_id]) // Ensure unique likes per user per post
+}
+
+model Friendship {
+    id       Int    @id @default(autoincrement())
+    user1Id  Int
+    user2Id  Int
+    user1    User   @relation("UserSentFriends", fields: [user1Id], references: [id])
+    user2    User   @relation("UserReceivedFriends", fields: [user2Id], references: [id])
+
+    @@unique([user1Id, user2Id]) // Ensure no duplicate friendships between users
+    @@index([user1Id])
+    @@index([user2Id])
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  senderId    Int
+  receiverId  Int
+  content     String
+  createdAt   DateTime @default(now())
+
+  // Relations (if any)
+  sender      User     @relation("UserMessagesSent", fields: [senderId], references: [id])
+  receiver    User     @relation("UserMessagesReceived", fields: [receiverId], references: [id])
+}
+

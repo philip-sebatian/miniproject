@@ -9,48 +9,63 @@ import { Label } from "@/components/ui/label";
 import { UploadCloud, Plus } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import imageCompression from "browser-image-compression"; // Import the compression library
 
 export default function CreatePostComp() {
   const [postContent, setPostContent] = useState({
     caption: "",
     image: null,
   });
-  const router= useRouter();
+  const router = useRouter();
+
   const handleInputChange = (e) => {
     setPostContent({ ...postContent, caption: e.target.value });
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPostContent({ ...postContent, image: reader.result });
+      // Set up the compression options
+      const options = {
+        maxSizeMB: 1, // Max file size in MB
+        maxWidthOrHeight: 1024, // Max width or height (in pixels)
+        useWebWorker: true, // Enable web worker for faster compression
       };
-      reader.readAsDataURL(file);
+
+      try {
+        // Compress the image
+        const compressedFile = await imageCompression(file, options);
+
+        // Read the compressed image as a Base64 string
+        const reader = new FileReader();
+        reader.onload = () => {
+          setPostContent({ ...postContent, image: reader.result });
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (error) {
+        console.error("Image compression failed:", error);
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       const a = await axios.get("/auth/me");
       console.log(a.data.user);
-      const obj= {
-        username:a.data.user,
+      const obj = {
+        username: a.data.user,
         avatar: "",
         caption: postContent.caption,
         likes: 0,
         image: postContent.image,
-      }
+      };
       console.log(obj);
-      const res = await axios.post("/posts",obj);
-      // ... rest of your code
+      await axios.post("/posts", obj);
       router.push("/home");
     } catch (error) {
       console.error("Error creating post:", error);
-      // Log the entire error object for better debugging
       console.error(error.response.data);
     }
   };
@@ -66,7 +81,10 @@ export default function CreatePostComp() {
             </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 p-4">
-            <Label htmlFor="imageUpload" className="flex flex-col items-center gap-2 cursor-pointer">
+            <Label
+              htmlFor="imageUpload"
+              className="flex flex-col items-center gap-2 cursor-pointer"
+            >
               {!postContent.image ? (
                 <div className="relative w-full h-[400px] bg-gray-100 flex justify-center items-center">
                   <Plus className="h-12 w-12 text-gray-400" />
@@ -80,7 +98,12 @@ export default function CreatePostComp() {
                 />
               )}
             </Label>
-            <Input id="imageUpload" type="file" className="hidden" onChange={handleImageUpload} />
+            <Input
+              id="imageUpload"
+              type="file"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
             <Textarea
               name="caption"
               placeholder="Write a caption..."

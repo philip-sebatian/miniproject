@@ -19,7 +19,7 @@ export async function GET() {
     try {
         const decoded = verify(value, secret);
         return NextResponse.json(
-            { message: "authorized", user: decoded.userName },
+            { message: "authorized", user: decoded.userName,id:decoded.userId},
             { status: 200 }
         );
     } catch (e) {
